@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wealth-pulse-api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:3000
+      # Database will be added in Week 2
+      # - DATABASE_URL=postgresql://postgres:postgres@db:5432/wealthpulse
+    # depends_on:
+    #   - db
+    #   - redis
+    networks:
+      - wealth-pulse-network
+
+  # PostgreSQL - Will be uncommented in Week 2
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: wealth-pulse-db
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: wealthpulse
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - wealth-pulse-network
+
+  # Redis - Will be uncommented in Week 3
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: wealth-pulse-redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - wealth-pulse-network
+
+networks:
+  wealth-pulse-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
