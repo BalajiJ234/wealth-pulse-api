@@ -30,7 +30,7 @@ router.get('/', (_req: Request, res: Response): void => {
 // GET /api/expenses/:id - Get single expense
 router.get('/:id', (req: Request, res: Response): void => {
   const expense = expenses.find((e) => e.id === req.params.id);
-  
+
   if (!expense) {
     res.status(404).json({
       success: false,
@@ -79,7 +79,7 @@ router.post('/', (req: Request, res: Response): void => {
 // PUT /api/expenses/:id - Update expense
 router.put('/:id', (req: Request, res: Response): void => {
   const index = expenses.findIndex((e) => e.id === req.params.id);
-  
+
   if (index === -1) {
     res.status(404).json({
       success: false,
@@ -109,7 +109,7 @@ router.put('/:id', (req: Request, res: Response): void => {
 // DELETE /api/expenses/:id - Delete expense
 router.delete('/:id', (req: Request, res: Response): void => {
   const index = expenses.findIndex((e) => e.id === req.params.id);
-  
+
   if (index === -1) {
     res.status(404).json({
       success: false,

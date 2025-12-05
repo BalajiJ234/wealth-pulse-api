@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: wealth-pulse-api
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - NODE_ENV=development
       - PORT=3001

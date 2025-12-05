@@ -4,10 +4,10 @@
 
 ## 🚀 Live URLs
 
-| Environment | URL |
-|-------------|-----|
+| Environment         | URL                         |
+| ------------------- | --------------------------- |
 | Production (Future) | `https://api.balaji-dev.in` |
-| Local Development | `http://localhost:3001` |
+| Local Development   | `http://localhost:3001`     |
 
 ## 🏗️ Tech Stack
 
@@ -84,21 +84,21 @@ docker run -p 3001:3001 wealth-pulse-api
 
 ### Health Check
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Health status |
-| GET | `/api/health/ready` | Readiness check (K8s) |
-| GET | `/api/health/live` | Liveness check (K8s) |
+| Method | Endpoint            | Description           |
+| ------ | ------------------- | --------------------- |
+| GET    | `/api/health`       | Health status         |
+| GET    | `/api/health/ready` | Readiness check (K8s) |
+| GET    | `/api/health/live`  | Liveness check (K8s)  |
 
 ### Expenses (In-memory for now)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/expenses` | Get all expenses |
-| GET | `/api/expenses/:id` | Get single expense |
-| POST | `/api/expenses` | Create expense |
-| PUT | `/api/expenses/:id` | Update expense |
-| DELETE | `/api/expenses/:id` | Delete expense |
+| Method | Endpoint            | Description        |
+| ------ | ------------------- | ------------------ |
+| GET    | `/api/expenses`     | Get all expenses   |
+| GET    | `/api/expenses/:id` | Get single expense |
+| POST   | `/api/expenses`     | Create expense     |
+| PUT    | `/api/expenses/:id` | Update expense     |
+| DELETE | `/api/expenses/:id` | Delete expense     |
 
 ### Example Request
 
@@ -114,20 +114,20 @@ curl http://localhost:3001/api/expenses
 
 ## 📅 Development Roadmap
 
-| Week | Focus | Status |
-|------|-------|--------|
+| Week   | Focus                      | Status      |
+| ------ | -------------------------- | ----------- |
 | Week 1 | Express + TypeScript setup | ✅ Complete |
-| Week 2 | PostgreSQL + Prisma ORM | 🎯 Next |
-| Week 3 | Redis caching | ⏳ Upcoming |
-| Week 4 | NGINX reverse proxy | ⏳ Upcoming |
+| Week 2 | PostgreSQL + Prisma ORM    | 🎯 Next     |
+| Week 3 | Redis caching              | ⏳ Upcoming |
+| Week 4 | NGINX reverse proxy        | ⏳ Upcoming |
 
 ## 🔗 Related Projects
 
-| Project | Repository | Description |
-|---------|------------|-------------|
-| Wealth Pulse Frontend | [wealthpulse](https://github.com/BalajiJ234/wealthpulse) | React/Next.js frontend |
-| Life Notes | [life-notes](https://github.com/BalajiJ234/life-notes) | Notes & todos app |
-| Life-Sync Gateway | [life-sync-2.0](https://github.com/BalajiJ234/life-sync-2.0) | Docs & gateway |
+| Project               | Repository                                                   | Description            |
+| --------------------- | ------------------------------------------------------------ | ---------------------- |
+| Wealth Pulse Frontend | [wealthpulse](https://github.com/BalajiJ234/wealthpulse)     | React/Next.js frontend |
+| Life Notes            | [life-notes](https://github.com/BalajiJ234/life-notes)       | Notes & todos app      |
+| Life-Sync Gateway     | [life-sync-2.0](https://github.com/BalajiJ234/life-sync-2.0) | Docs & gateway         |
 
 ## 📜 License
 

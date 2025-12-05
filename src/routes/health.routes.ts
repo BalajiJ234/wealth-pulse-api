@@ -26,7 +26,7 @@ router.get('/ready', (_req: Request, res: Response) => {
       checks: {
         server: true,
         database: false, // Will be implemented in Week 2
-        cache: false,    // Will be implemented in Week 3
+        cache: false, // Will be implemented in Week 3
       },
     },
   });
