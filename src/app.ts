@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import healthRoutes from './routes/health.routes.js';
 import expenseRoutes from './routes/expense.routes.js';
+import budgetRoutes from './routes/budget.routes.js';
 
 const app: Application = express();
 
@@ -35,6 +36,7 @@ if (config.nodeEnv === 'development') {
 // Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/budget', budgetRoutes);
 
 // Error handling
 app.use(notFoundHandler);
