@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: wealth-pulse-api
+    env: node
+    region: singapore  # Closest to UAE/India
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
