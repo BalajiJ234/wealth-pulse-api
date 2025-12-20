@@ -3,23 +3,23 @@
  * Handles currency conversion and rate management
  */
 
-import { FxRate, Money, Currency } from "../models/budget.models";
+import { FxRate, Money, Currency } from '../models/budget.models';
 
 // In-memory cache for FX rates (in production, use Redis or database)
 const fxRateCache: Map<string, FxRate> = new Map();
 
 // Default rates (fallback when API is unavailable)
 const DEFAULT_RATES: Record<string, number> = {
-  "USD_AED": 3.67,
-  "INR_AED": 0.044,
-  "EUR_AED": 3.98,
-  "GBP_AED": 4.64,
-  "AED_USD": 0.27,
-  "AED_INR": 22.73,
-  "AED_EUR": 0.25,
-  "AED_GBP": 0.22,
-  "USD_INR": 83.5,
-  "INR_USD": 0.012,
+  USD_AED: 3.67,
+  INR_AED: 0.044,
+  EUR_AED: 3.98,
+  GBP_AED: 4.64,
+  AED_USD: 0.27,
+  AED_INR: 22.73,
+  AED_EUR: 0.25,
+  AED_GBP: 0.22,
+  USD_INR: 83.5,
+  INR_USD: 0.012,
 };
 
 /**
@@ -33,10 +33,7 @@ function getCacheKey(from: Currency, to: Currency): string {
  * Fetch FX rate from external API (e.g., exchangerate-api.com)
  * Falls back to default rates if API is unavailable
  */
-export async function fetchFxRate(
-  from: Currency,
-  to: Currency
-): Promise<FxRate> {
+export async function fetchFxRate(from: Currency, to: Currency): Promise<FxRate> {
   const cacheKey = getCacheKey(from, to);
 
   // Check cache first (rates are valid for 1 hour)
@@ -60,9 +57,7 @@ export async function fetchFxRate(
 
   try {
     // Try to fetch from external API
-    const response = await fetch(
-      `https://api.exchangerate-api.com/v4/latest/${from}`
-    );
+    const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
 
     if (response.ok) {
       const data = (await response.json()) as { rates: Record<string, number> };
@@ -114,11 +109,7 @@ export async function createMoney(
   currency: Currency,
   baseCurrency: Currency
 ): Promise<Money> {
-  const { convertedAmount, fxRate } = await convertCurrency(
-    amount,
-    currency,
-    baseCurrency
-  );
+  const { convertedAmount, fxRate } = await convertCurrency(amount, currency, baseCurrency);
 
   return {
     amount,

@@ -3,7 +3,7 @@
  * Core algorithms for budget generation, tracking, and insights
  */
 
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import {
   MonthlyBudgetPlan,
   BudgetBucket,
@@ -21,8 +21,8 @@ import {
   DEFAULT_BUDGET_RULES,
   DEFAULT_CATEGORIES,
   Currency,
-} from "../models/budget.models";
-import { createMoney } from "./fx.service";
+} from '../models/budget.models';
+import { createMoney } from './fx.service';
 
 // In-memory storage (replace with database in production)
 const budgetPlans: Map<string, MonthlyBudgetPlan> = new Map();
@@ -34,11 +34,11 @@ const transactions: Map<string, Transaction> = new Map();
  * Determine bucket status based on spent vs planned
  */
 function calculateStatus(spent: number, planned: number): BucketStatus {
-  if (planned === 0) return "UNDER";
+  if (planned === 0) return 'UNDER';
   const ratio = spent / planned;
-  if (ratio > 1) return "OVER";
-  if (ratio >= 0.8) return "NEAR_LIMIT";
-  return "UNDER";
+  if (ratio > 1) return 'OVER';
+  if (ratio >= 0.8) return 'NEAR_LIMIT';
+  return 'UNDER';
 }
 
 /**
@@ -63,7 +63,7 @@ export async function generateBudgetPlan(
   goals: Goal[],
   rules: BudgetRuleSet = {
     ...DEFAULT_BUDGET_RULES,
-    id: "default",
+    id: 'default',
     userId,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -75,11 +75,7 @@ export async function generateBudgetPlan(
     totalIncomeBase += income.money.baseAmount;
   }
 
-  const totalIncome = await createMoney(
-    totalIncomeBase,
-    baseCurrency,
-    baseCurrency
-  );
+  const totalIncome = await createMoney(totalIncomeBase, baseCurrency, baseCurrency);
 
   // Step 2: Calculate bucket allocations
   const needsPlanned = (totalIncomeBase * rules.buckets.needs) / 100;
@@ -89,10 +85,7 @@ export async function generateBudgetPlan(
 
   // Step 3: Enforce minimums
   const minSavings = totalIncomeBase * (rules.minSavingsPercent / 100);
-  const totalMinDebtPayments = debts.reduce(
-    (sum, d) => sum + d.minMonthlyPayment.baseAmount,
-    0
-  );
+  const totalMinDebtPayments = debts.reduce((sum, d) => sum + d.minMonthlyPayment.baseAmount, 0);
 
   // Ensure savings meets minimum
   if (savingsPlanned < minSavings) {
@@ -115,14 +108,11 @@ export async function generateBudgetPlan(
 
   // Step 5: Distribute debt payments
   const sortedDebts =
-    rules.debtStrategy === "snowball"
+    rules.debtStrategy === 'snowball'
       ? [...debts].sort(
-          (a, b) =>
-            a.outstandingPrincipal.baseAmount - b.outstandingPrincipal.baseAmount
+          (a, b) => a.outstandingPrincipal.baseAmount - b.outstandingPrincipal.baseAmount
         )
-      : [...debts].sort(
-          (a, b) => b.interestRateAnnual - a.interestRateAnnual
-        );
+      : [...debts].sort((a, b) => b.interestRateAnnual - a.interestRateAnnual);
 
   let remainingDebtBudget = debtPlanned;
   const debtSnapshots: DebtSnapshot[] = [];
@@ -134,10 +124,7 @@ export async function generateBudgetPlan(
 
     // Allocate extra to highest priority debt
     if (remainingDebtBudget > minPayment && debtSnapshots.length === 0) {
-      allocatedPayment = Math.min(
-        remainingDebtBudget,
-        debt.outstandingPrincipal.baseAmount
-      );
+      allocatedPayment = Math.min(remainingDebtBudget, debt.outstandingPrincipal.baseAmount);
       isMinimum = false;
     }
 
@@ -147,11 +134,7 @@ export async function generateBudgetPlan(
       debtId: debt.id,
       name: debt.name,
       outstandingPrincipal: debt.outstandingPrincipal,
-      allocatedPayment: await createMoney(
-        allocatedPayment,
-        baseCurrency,
-        baseCurrency
-      ),
+      allocatedPayment: await createMoney(allocatedPayment, baseCurrency, baseCurrency),
       isMinimumPayment: isMinimum,
     });
   }
@@ -176,10 +159,8 @@ export async function generateBudgetPlan(
   // Step 6: Create goal snapshots
   const goalsSnapshots: GoalSnapshot[] = goals.map((goal) => {
     const monthsRemaining = calculateMonthsRemaining(goal.targetDate);
-    const amountNeeded =
-      goal.targetAmount.baseAmount - goal.currentAmount.baseAmount;
-    const monthlyContribution =
-      monthsRemaining > 0 ? amountNeeded / monthsRemaining : 0;
+    const amountNeeded = goal.targetAmount.baseAmount - goal.currentAmount.baseAmount;
+    const monthlyContribution = monthsRemaining > 0 ? amountNeeded / monthsRemaining : 0;
     const progressPercent =
       goal.targetAmount.baseAmount > 0
         ? (goal.currentAmount.baseAmount / goal.targetAmount.baseAmount) * 100
@@ -203,34 +184,14 @@ export async function generateBudgetPlan(
 
   // Step 7: Create bucket structures with categories
   const buckets = {
-    NEEDS: createBucket(
-      "NEEDS",
-      needsPlanned,
-      baseCurrency,
-      DEFAULT_CATEGORIES.NEEDS
-    ),
-    WANTS: createBucket(
-      "WANTS",
-      wantsPlanned,
-      baseCurrency,
-      DEFAULT_CATEGORIES.WANTS
-    ),
+    NEEDS: createBucket('NEEDS', needsPlanned, baseCurrency, DEFAULT_CATEGORIES.NEEDS),
+    WANTS: createBucket('WANTS', wantsPlanned, baseCurrency, DEFAULT_CATEGORIES.WANTS),
     SAVINGS: {
-      ...createBucket(
-        "SAVINGS",
-        savingsPlanned,
-        baseCurrency,
-        DEFAULT_CATEGORIES.SAVINGS
-      ),
+      ...createBucket('SAVINGS', savingsPlanned, baseCurrency, DEFAULT_CATEGORIES.SAVINGS),
       savingsAllocation,
     },
     DEBT: {
-      ...createBucket(
-        "DEBT",
-        debtPlanned,
-        baseCurrency,
-        DEFAULT_CATEGORIES.DEBT
-      ),
+      ...createBucket('DEBT', debtPlanned, baseCurrency, DEFAULT_CATEGORIES.DEBT),
       debtAllocation,
     },
   };
@@ -241,9 +202,9 @@ export async function generateBudgetPlan(
   if (savingsPlanned < minSavings) {
     insights.push({
       id: uuidv4(),
-      type: "warning",
+      type: 'warning',
       message: `Your savings allocation is below the recommended minimum of ${rules.minSavingsPercent}%`,
-      bucket: "SAVINGS",
+      bucket: 'SAVINGS',
       createdAt: new Date(),
     });
   }
@@ -251,10 +212,9 @@ export async function generateBudgetPlan(
   if (debtPlanned > totalIncomeBase * 0.4) {
     insights.push({
       id: uuidv4(),
-      type: "alert",
-      message:
-        "Debt payments exceed 40% of income. Consider debt consolidation.",
-      bucket: "DEBT",
+      type: 'alert',
+      message: 'Debt payments exceed 40% of income. Consider debt consolidation.',
+      bucket: 'DEBT',
       createdAt: new Date(),
     });
   }
@@ -298,7 +258,7 @@ function createBucket(
       planned: perCategory,
       spent: 0,
       remaining: perCategory,
-      status: "UNDER",
+      status: 'UNDER',
     };
   }
 
@@ -325,7 +285,7 @@ function createBucket(
       fxRate: 1,
       fxTimestamp: new Date(),
     },
-    status: "UNDER",
+    status: 'UNDER',
     categories,
   };
 }
@@ -337,8 +297,7 @@ function calculateMonthsRemaining(targetDate: string): number {
   const target = new Date(targetDate);
   const now = new Date();
   const months =
-    (target.getFullYear() - now.getFullYear()) * 12 +
-    (target.getMonth() - now.getMonth());
+    (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
   return Math.max(0, months);
 }
 
@@ -379,7 +338,7 @@ export async function logTransaction(
     id: uuidv4(),
     userId,
     budgetPlanId: plan.id,
-    type: amount < 0 ? "income" : "expense",
+    type: amount < 0 ? 'income' : 'expense',
     money,
     category,
     bucket,
@@ -395,13 +354,9 @@ export async function logTransaction(
   const bucketData = plan.buckets[bucket];
   bucketData.spent.baseAmount += money.baseAmount;
   bucketData.spent.amount += money.baseAmount;
-  bucketData.remaining.baseAmount =
-    bucketData.planned.baseAmount - bucketData.spent.baseAmount;
+  bucketData.remaining.baseAmount = bucketData.planned.baseAmount - bucketData.spent.baseAmount;
   bucketData.remaining.amount = bucketData.remaining.baseAmount;
-  bucketData.status = calculateStatus(
-    bucketData.spent.baseAmount,
-    bucketData.planned.baseAmount
-  );
+  bucketData.status = calculateStatus(bucketData.spent.baseAmount, bucketData.planned.baseAmount);
 
   // Update category
   if (bucketData.categories[category]) {
@@ -416,17 +371,17 @@ export async function logTransaction(
       planned: 0,
       spent: money.baseAmount,
       remaining: -money.baseAmount,
-      status: "OVER",
+      status: 'OVER',
     };
   }
 
   // Generate insights
   const newInsights: BudgetInsight[] = [];
 
-  if (bucketData.status === "NEAR_LIMIT") {
+  if (bucketData.status === 'NEAR_LIMIT') {
     newInsights.push({
       id: uuidv4(),
-      type: "warning",
+      type: 'warning',
       message: `You're approaching your ${bucket} budget limit (${Math.round(
         (bucketData.spent.baseAmount / bucketData.planned.baseAmount) * 100
       )}% used)`,
@@ -435,10 +390,10 @@ export async function logTransaction(
     });
   }
 
-  if (bucketData.status === "OVER") {
+  if (bucketData.status === 'OVER') {
     newInsights.push({
       id: uuidv4(),
-      type: "alert",
+      type: 'alert',
       message: `You've exceeded your ${bucket} budget by ${Math.round(
         bucketData.spent.baseAmount - bucketData.planned.baseAmount
       )} ${baseCurrency}`,
@@ -447,10 +402,10 @@ export async function logTransaction(
     });
   }
 
-  if (bucketData.categories[category]?.status === "OVER") {
+  if (bucketData.categories[category]?.status === 'OVER') {
     newInsights.push({
       id: uuidv4(),
-      type: "alert",
+      type: 'alert',
       message: `Over budget in ${category}`,
       bucket,
       category,
@@ -474,10 +429,7 @@ export async function logTransaction(
 /**
  * Get budget plan for a user and month
  */
-export function getBudgetPlan(
-  userId: string,
-  month: string
-): MonthlyBudgetPlan | undefined {
+export function getBudgetPlan(userId: string, month: string): MonthlyBudgetPlan | undefined {
   return budgetPlans.get(getPlanKey(userId, month));
 }
 
@@ -485,9 +437,7 @@ export function getBudgetPlan(
  * Get all transactions for a budget plan
  */
 export function getTransactions(budgetPlanId: string): Transaction[] {
-  return Array.from(transactions.values()).filter(
-    (t) => t.budgetPlanId === budgetPlanId
-  );
+  return Array.from(transactions.values()).filter((t) => t.budgetPlanId === budgetPlanId);
 }
 
 /**
@@ -523,17 +473,15 @@ export function generateInsights(plan: MonthlyBudgetPlan): BudgetInsight[] {
     if (percentUsed >= 100) {
       insights.push({
         id: uuidv4(),
-        type: "alert",
-        message: `${bucketType} budget exceeded by ${(
-          percentUsed - 100
-        ).toFixed(1)}%`,
+        type: 'alert',
+        message: `${bucketType} budget exceeded by ${(percentUsed - 100).toFixed(1)}%`,
         bucket: bucketType as BucketType,
         createdAt: new Date(),
       });
     } else if (percentUsed >= 80) {
       insights.push({
         id: uuidv4(),
-        type: "warning",
+        type: 'warning',
         message: `${bucketType} budget is ${percentUsed.toFixed(
           1
         )}% used. Consider reducing spending.`,
@@ -544,13 +492,13 @@ export function generateInsights(plan: MonthlyBudgetPlan): BudgetInsight[] {
 
     // Check categories
     for (const [catName, cat] of Object.entries(bucket.categories)) {
-      if (cat.status === "OVER") {
+      if (cat.status === 'OVER') {
         insights.push({
           id: uuidv4(),
-          type: "alert",
-          message: `Over budget in ${catName} by ${Math.abs(
-            cat.remaining
-          ).toFixed(2)} ${plan.baseCurrency}`,
+          type: 'alert',
+          message: `Over budget in ${catName} by ${Math.abs(cat.remaining).toFixed(
+            2
+          )} ${plan.baseCurrency}`,
           bucket: bucketType as BucketType,
           category: catName,
           createdAt: new Date(),
@@ -562,18 +510,18 @@ export function generateInsights(plan: MonthlyBudgetPlan): BudgetInsight[] {
   // Savings insights
   if (plan.buckets.SAVINGS.spent.baseAmount < plan.buckets.SAVINGS.planned.baseAmount * 0.5) {
     const daysInMonth = new Date(
-      parseInt(plan.month.split("-")[0]),
-      parseInt(plan.month.split("-")[1]),
+      parseInt(plan.month.split('-')[0]),
+      parseInt(plan.month.split('-')[1]),
       0
     ).getDate();
     const currentDay = new Date().getDate();
-    
+
     if (currentDay > daysInMonth / 2) {
       insights.push({
         id: uuidv4(),
-        type: "info",
+        type: 'info',
         message: "You're on track with savings. Keep it up!",
-        bucket: "SAVINGS",
+        bucket: 'SAVINGS',
         createdAt: new Date(),
       });
     }
@@ -584,17 +532,15 @@ export function generateInsights(plan: MonthlyBudgetPlan): BudgetInsight[] {
     if (goal.progressPercent >= 100) {
       insights.push({
         id: uuidv4(),
-        type: "success",
+        type: 'success',
         message: `🎉 You've reached your goal: ${goal.name}!`,
         createdAt: new Date(),
       });
     } else if (goal.progressPercent >= 75) {
       insights.push({
         id: uuidv4(),
-        type: "info",
-        message: `Almost there! ${goal.name} is ${goal.progressPercent.toFixed(
-          1
-        )}% complete.`,
+        type: 'info',
+        message: `Almost there! ${goal.name} is ${goal.progressPercent.toFixed(1)}% complete.`,
         createdAt: new Date(),
       });
     }

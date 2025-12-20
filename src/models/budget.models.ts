@@ -7,19 +7,19 @@
 
 export type Currency = string; // ISO 4217 codes (e.g., "AED", "INR", "USD")
 
-export type IncomeType = "salary" | "freelance" | "passive";
-export type Recurrence = "monthly" | "weekly" | "one-time";
+export type IncomeType = 'salary' | 'freelance' | 'passive';
+export type Recurrence = 'monthly' | 'weekly' | 'one-time';
 export type GoalType =
-  | "emergency"
-  | "marriage"
-  | "retirement"
-  | "education"
-  | "large_purchase"
-  | "other";
-export type DebtStrategy = "snowball" | "avalanche";
-export type StrategyType = "percentage" | "zero-based" | "custom";
-export type BucketStatus = "UNDER" | "NEAR_LIMIT" | "OVER";
-export type BucketType = "NEEDS" | "WANTS" | "SAVINGS" | "DEBT";
+  | 'emergency'
+  | 'marriage'
+  | 'retirement'
+  | 'education'
+  | 'large_purchase'
+  | 'other';
+export type DebtStrategy = 'snowball' | 'avalanche';
+export type StrategyType = 'percentage' | 'zero-based' | 'custom';
+export type BucketStatus = 'UNDER' | 'NEAR_LIMIT' | 'OVER';
+export type BucketType = 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBT';
 
 // ==================== Domain Objects ====================
 
@@ -185,7 +185,7 @@ export interface BudgetBucket {
  */
 export interface BudgetInsight {
   id: string;
-  type: "warning" | "alert" | "info" | "success";
+  type: 'warning' | 'alert' | 'info' | 'success';
   message: string;
   bucket?: BucketType;
   category?: string;
@@ -239,7 +239,7 @@ export interface MonthlyBudgetPlan {
 
 // ==================== Transaction ====================
 
-export type TransactionType = "expense" | "income" | "transfer";
+export type TransactionType = 'expense' | 'income' | 'transfer';
 
 export interface Transaction {
   id: string;
@@ -311,9 +311,9 @@ export interface GetFxRatesResponse {
 
 export const DEFAULT_BUDGET_RULES: Omit<
   BudgetRuleSet,
-  "id" | "userId" | "createdAt" | "updatedAt"
+  'id' | 'userId' | 'createdAt' | 'updatedAt'
 > = {
-  strategyType: "percentage",
+  strategyType: 'percentage',
   buckets: {
     needs: 50,
     wants: 20,
@@ -328,26 +328,12 @@ export const DEFAULT_BUDGET_RULES: Omit<
     global: 0.1,
   },
   emergencyFundPolicy: 6, // 6 months of expenses
-  debtStrategy: "avalanche",
+  debtStrategy: 'avalanche',
 };
 
 export const DEFAULT_CATEGORIES: Record<BucketType, string[]> = {
-  NEEDS: [
-    "rent",
-    "utilities",
-    "groceries",
-    "transport",
-    "insurance",
-    "healthcare",
-  ],
-  WANTS: [
-    "dining_out",
-    "entertainment",
-    "shopping",
-    "subscriptions",
-    "hobbies",
-    "travel",
-  ],
-  SAVINGS: ["emergency_fund", "investments", "retirement", "goals"],
-  DEBT: ["credit_card", "home_loan", "personal_loan", "car_loan", "other_debt"],
+  NEEDS: ['rent', 'utilities', 'groceries', 'transport', 'insurance', 'healthcare'],
+  WANTS: ['dining_out', 'entertainment', 'shopping', 'subscriptions', 'hobbies', 'travel'],
+  SAVINGS: ['emergency_fund', 'investments', 'retirement', 'goals'],
+  DEBT: ['credit_card', 'home_loan', 'personal_loan', 'car_loan', 'other_debt'],
 };
