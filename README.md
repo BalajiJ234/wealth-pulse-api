@@ -7,7 +7,7 @@
 | Environment         | URL                         |
 | ------------------- | --------------------------- |
 | Production (Future) | `https://api.balaji-dev.in` |
-| Local Development   | `http://localhost:3001`     |
+| Local Development   | `http://localhost:8080`     |
 
 ## 🏗️ Tech Stack
 
@@ -77,7 +77,7 @@ docker-compose up --build
 
 # Or build image manually
 docker build -t wealth-pulse-api .
-docker run -p 3001:3001 wealth-pulse-api
+docker run -p 8080:8080 wealth-pulse-api
 ```
 
 ## 📡 API Endpoints
@@ -104,12 +104,12 @@ docker run -p 3001:3001 wealth-pulse-api
 
 ```bash
 # Create expense
-curl -X POST http://localhost:3001/api/expenses \
+curl -X POST http://localhost:8080/api/expenses \
   -H "Content-Type: application/json" \
   -d '{"amount": 500, "category": "Food", "description": "Lunch"}'
 
 # Get all expenses
-curl http://localhost:3001/api/expenses
+curl http://localhost:8080/api/expenses
 ```
 
 ## 📅 Development Roadmap
@@ -132,3 +132,17 @@ curl http://localhost:3001/api/expenses
 ## 📜 License
 
 MIT © Balaji J
+
+LifeSync 2.0 context (Dec 2025):
+
+- Subscription: Azure subscription 1 (Free Trial)
+- RG: lifesync-prod, Region: UAE North
+- ACR: lifesyncreg.azurecr.io (Basic)
+- Container Apps Env: managedEnvironment-lifesyncprod-afcc
+- Log workspace: workspacelifesyncproda3ff
+- Repo now: wealth-pulse-api (Node/Express) port 8080
+- Goal: CLI-first, AZ-204 aligned, no Redis/K8s/Terraform till Mar 2026
+- ACR created and We pushed two version of the image to the Azure Container Registry
+- Created Azure Container App
+  Task now: <what you want to do>
+- Today task: Need to check the connectivity (In Progress)
