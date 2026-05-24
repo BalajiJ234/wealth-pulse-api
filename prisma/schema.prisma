@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+
+}
+
+model Transaction {
+  id               String   @id @default(cuid())
+  userId           String   @default("default")
+  type             String
+  title            String
+  amount           Float
+  currency         String   @default("AED")
+  exchangeRate     Float    @default(1)
+  convertedAmount  Float
+  baseCurrency     String   @default("AED")
+  category         String
+  paymentMethod    String?
+  transactionDate  String
+  isRecurring      Boolean  @default(false)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Debt {
+  id                   String   @id @default(cuid())
+  userId               String   @default("default")
+  debtName             String
+  lenderName           String?
+  totalAmount          Float
+  currency             String   @default("AED")
+  exchangeRate         Float    @default(1)
+  convertedTotalAmount Float
+  remainingBalance     Float
+  monthlyPayment       Float
+  interestRate         Float    @default(0)
+  dueDate              String?
+  debtType             String?
+  status               String   @default("ACTIVE")
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Commitment {
+  id              String   @id @default(cuid())
+  userId          String   @default("default")
+  title           String
+  amount          Float
+  currency        String   @default("AED")
+  exchangeRate    Float    @default(1)
+  convertedAmount Float
+  dueDate         String
+  category        String?
+  priority        String   @default("MEDIUM")
+  recurringType   String   @default("NONE")
+  status          String   @default("UPCOMING")
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CurrencyRate {
+  id           String   @id @default(cuid())
+  fromCurrency String
+  toCurrency   String
+  rate         Float
+  source       String   @default("api")
+  rateDate     String
+  createdAt    DateTime @default(now())
+
+  @@unique([fromCurrency, toCurrency, rateDate])
+}
+
+model FinancialSnapshot {
+  id                String   @id @default(cuid())
+  userId            String   @default("default")
+  month             String
+  totalIncome       Float
+  totalExpenses     Float
+  totalDebtPayments Float
+  totalSavings      Float
+  netSurplus        Float
+  healthScore       Float
+  baseCurrency      String   @default("AED")
+  createdAt         DateTime @default(now())
+
+  @@unique([userId, month])
+}
+
+model EmergencyFund {
+  id                String   @id @default(cuid())
+  userId            String   @default("default") @unique
+  currentBalance    Float    @default(0)
+  targetMonths      Int      @default(6)
+  currency          String   @default("AED")
+  monthlyEssentials Float    @default(0)
+  updatedAt         DateTime @updatedAt
+}
+
+model PurchaseGoal {
+  id           String   @id @default(cuid())
+  userId       String   @default("default")
+  name         String
+  targetAmount Float
+  currency     String   @default("AED")
+  savedAmount  Float    @default(0)
+  targetDate   String?
+  status       String   @default("ACTIVE")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BudgetCategory {
+  id           String   @id @default(cuid())
+  userId       String   @default("default")
+  name         String
+  monthlyLimit Float
+  currency     String   @default("AED")
+  color        String?
+  icon         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, name])
+}

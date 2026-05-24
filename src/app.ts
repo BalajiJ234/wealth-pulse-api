@@ -8,6 +8,11 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import healthRoutes from './routes/health.routes.js';
 import expenseRoutes from './routes/expense.routes.js';
 import budgetRoutes from './routes/budget.routes.js';
+import transactionRoutes from './routes/transaction.routes.js';
+import debtRoutes from './routes/debt.routes.js';
+import commitmentRoutes from './routes/commitment.routes.js';
+import currencyRoutes from './routes/currency.routes.js';
+import dashboardRoutes from './routes/dashboard.routes.js';
 
 const app: Application = express();
 
@@ -33,10 +38,18 @@ if (config.nodeEnv === 'development') {
   app.use(morgan('combined'));
 }
 
-// Routes
+// Routes — legacy
 app.use('/api/health', healthRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/budget', budgetRoutes);
+
+// Routes — Financial Decision Dashboard (Enhancement)
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/debts', debtRoutes);
+app.use('/api/commitments', commitmentRoutes);
+app.use('/api/currency-rates', currencyRoutes);
+app.use('/api/currency', currencyRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling
 app.use(notFoundHandler);

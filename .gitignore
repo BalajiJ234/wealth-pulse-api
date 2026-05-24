@@ -29,3 +29,5 @@ coverage/
 
 # Docker
 .docker/
+
+/src/generated/prisma
