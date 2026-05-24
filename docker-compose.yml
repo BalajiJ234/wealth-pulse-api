@@ -12,28 +12,31 @@ services:
       - NODE_ENV=development
       - PORT=3001
       - FRONTEND_URL=http://localhost:3000
-      # Database will be added in Week 2
-      # - DATABASE_URL=postgresql://postgres:postgres@db:5432/wealthpulse
-    # depends_on:
-    #   - db
-    #   - redis
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/wealthpulse
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - wealth-pulse-network
 
-  # PostgreSQL - Will be uncommented in Week 2
-  # db:
-  #   image: postgres:15-alpine
-  #   container_name: wealth-pulse-db
-  #   environment:
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #     POSTGRES_DB: wealthpulse
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data
-  #   networks:
-  #     - wealth-pulse-network
+  db:
+    image: postgres:15-alpine
+    container_name: wealth-pulse-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wealthpulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - wealth-pulse-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # Redis - Will be uncommented in Week 3
   # redis:
@@ -44,9 +47,9 @@ services:
   #   networks:
   #     - wealth-pulse-network
 
+volumes:
+  postgres-data:
+
 networks:
   wealth-pulse-network:
     driver: bridge
-
-volumes:
-  postgres-data:
