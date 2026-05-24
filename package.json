@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src/**/*.ts",
-    "format": "prettier --write src/**/*.ts"
+    "format": "prettier --write src/**/*.ts",
+    "seed": "node scripts/seed.js",
+    "seed:clear": "node scripts/seed.js --clear"
   },
   "keywords": [
     "finance",
