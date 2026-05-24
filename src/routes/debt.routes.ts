@@ -24,7 +24,11 @@ router.post('/', async (req: Request, res: Response) => {
     } = req.body;
 
     if (!debtName || totalAmount == null || remainingBalance == null || monthlyPayment == null) {
-      return res.status(400).json({ error: 'Missing required fields: debtName, totalAmount, remainingBalance, monthlyPayment' });
+      return res
+        .status(400)
+        .json({
+          error: 'Missing required fields: debtName, totalAmount, remainingBalance, monthlyPayment',
+        });
     }
 
     const debt = await prisma.debt.create({

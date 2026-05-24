@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import {
   calcHealthScore,
-  calcIPhoneDecision,
+  calcPurchaseDecision,
   simulateFutureImpact,
 } from '../services/financial.service.js';
 
@@ -13,7 +13,13 @@ async function getMonthlySummary(userId: string, month: string) {
   const txns = await prisma.transaction.findMany({
     where: { userId, transactionDate: { startsWith: month } },
   });
-  const summary = { totalIncome: 0, totalExpenses: 0, totalDebtPayments: 0, totalSavings: 0, netSurplus: 0 };
+  const summary = {
+    totalIncome: 0,
+    totalExpenses: 0,
+    totalDebtPayments: 0,
+    totalSavings: 0,
+    netSurplus: 0,
+  };
   for (const t of txns) {
     const amt = t.convertedAmount;
     if (t.type === 'INCOME') summary.totalIncome += amt;
@@ -98,12 +104,12 @@ router.get('/financial-health', async (req: Request, res: Response) => {
       lastThreeMonthsSurpluses: [m1.netSurplus, m2.netSurplus, m3.netSurplus],
     });
 
-    const dti = currentSummary.totalIncome > 0
-      ? currentSummary.totalDebtPayments / currentSummary.totalIncome
-      : 0;
-    const savingsRate = currentSummary.totalIncome > 0
-      ? currentSummary.totalSavings / currentSummary.totalIncome
-      : 0;
+    const dti =
+      currentSummary.totalIncome > 0
+        ? currentSummary.totalDebtPayments / currentSummary.totalIncome
+        : 0;
+    const savingsRate =
+      currentSummary.totalIncome > 0 ? currentSummary.totalSavings / currentSummary.totalIncome : 0;
 
     return res.json({
       score,
@@ -128,12 +134,16 @@ router.get('/financial-health', async (req: Request, res: Response) => {
   }
 });
 
-// ─── GET /api/dashboard/iphone-decision ──────────────────────────────────────
-router.get('/iphone-decision', async (req: Request, res: Response) => {
+// ─── GET /api/dashboard/purchase-decision ───────────────────────────────────
+router.get('/purchase-decision', async (req: Request, res: Response) => {
   try {
-    const { userId = 'default', iphonePrice = '5000', emiMonths = '12' } = req.query as Record<string, string>;
+    const {
+      userId = 'default',
+      itemPrice = '5000',
+      emiMonths = '12',
+    } = req.query as Record<string, string>;
 
-    const price = Number(iphonePrice);
+    const price = Number(itemPrice);
     const months = Number(emiMonths);
     const monthlyEmi = months > 0 ? price / months : price;
 
@@ -148,7 +158,7 @@ router.get('/iphone-decision', async (req: Request, res: Response) => {
     const totalActiveDebt = activeDebts.reduce((s, d) => s + d.remainingBalance, 0);
     const upcomingHighTotal = upcomingHigh.reduce((s, c) => s + c.convertedAmount, 0);
 
-    const result = calcIPhoneDecision({
+    const result = calcPurchaseDecision({
       income: monthly.totalIncome,
       expenses: monthly.totalExpenses,
       debtPayments: monthly.totalDebtPayments,
@@ -156,15 +166,15 @@ router.get('/iphone-decision', async (req: Request, res: Response) => {
       emergencyFundBalance: efund?.currentBalance ?? 0,
       monthlyEssentials: efund?.monthlyEssentials ?? monthly.totalExpenses * 0.6,
       upcomingHighPriorityTotal: upcomingHighTotal,
-      iphonePrice: price,
-      iphoneEmi: monthlyEmi,
+      itemPrice: price,
+      itemEmi: monthlyEmi,
       emiMonths: months,
       hasActiveDebt: activeDebts.length > 0,
     });
 
     return res.json({
       ...result,
-      input: { iphonePrice: price, emiMonths: months, monthlyEmi },
+      input: { itemPrice: price, emiMonths: months, monthlyEmi },
     });
   } catch (err) {
     console.error(err);

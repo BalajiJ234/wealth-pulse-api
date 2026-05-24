@@ -76,7 +76,11 @@ router.post('/convert', async (req: Request, res: Response) => {
     });
 
     if (!rateRow) {
-      return res.status(404).json({ error: `No rate found for ${from}→${to}. Store one via POST /api/currency-rates/manual` });
+      return res
+        .status(404)
+        .json({
+          error: `No rate found for ${from}→${to}. Store one via POST /api/currency-rates/manual`,
+        });
     }
 
     return res.json({

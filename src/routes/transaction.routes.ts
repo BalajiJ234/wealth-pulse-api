@@ -23,7 +23,9 @@ router.post('/', async (req: Request, res: Response) => {
     } = req.body;
 
     if (!type || !title || amount == null || !category || !transactionDate) {
-      return res.status(400).json({ error: 'Missing required fields: type, title, amount, category, transactionDate' });
+      return res
+        .status(400)
+        .json({ error: 'Missing required fields: type, title, amount, category, transactionDate' });
     }
 
     const transaction = await prisma.transaction.create({
@@ -53,7 +55,14 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/transactions
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { userId = 'default', type, currency, from, to, category } = req.query as Record<string, string>;
+    const {
+      userId = 'default',
+      type,
+      currency,
+      from,
+      to,
+      category,
+    } = req.query as Record<string, string>;
 
     const where: Record<string, unknown> = { userId };
     if (type) where.type = type;

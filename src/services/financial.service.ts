@@ -78,15 +78,15 @@ export function calcHealthScore(params: {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-// ─── iPhone Decision Engine ───────────────────────────────────────────────────
-export type IPhoneDecision =
+// ─── Purchase Decision Engine ───────────────────────────────────────────────
+export type PurchaseDecision =
   | 'SAFE_TO_BUY'
   | 'WAIT_3_MONTHS'
   | 'WAIT_6_MONTHS'
   | 'BUY_LOWER_MODEL'
   | 'AVOID_FOR_NOW';
 
-export function calcIPhoneDecision(params: {
+export function calcPurchaseDecision(params: {
   income: number;
   expenses: number;
   debtPayments: number;
@@ -94,11 +94,11 @@ export function calcIPhoneDecision(params: {
   emergencyFundBalance: number;
   monthlyEssentials: number;
   upcomingHighPriorityTotal: number;
-  iphonePrice: number;           // one-time or total cost
-  iphoneEmi?: number;            // if paying via EMI
+  itemPrice: number; // one-time or total cost
+  itemEmi?: number; // if paying via EMI
   emiMonths?: number;
   hasActiveDebt: boolean;
-}): { decision: IPhoneDecision; reasons: string[]; score: number } {
+}): { decision: PurchaseDecision; reasons: string[]; score: number } {
   const {
     income,
     expenses,
@@ -107,8 +107,8 @@ export function calcIPhoneDecision(params: {
     emergencyFundBalance,
     monthlyEssentials,
     upcomingHighPriorityTotal,
-    iphonePrice,
-    iphoneEmi = iphonePrice,    // default: single payment treated as EMI
+    itemPrice,
+    itemEmi = itemPrice, // default: single payment treated as EMI
     hasActiveDebt,
   } = params;
 
@@ -118,9 +118,9 @@ export function calcIPhoneDecision(params: {
 
   const emergencyFundMonths = monthlyEssentials > 0 ? emergencyFundBalance / monthlyEssentials : 0;
   const dti = income > 0 ? debtPayments / income : 1;
-  const emiRatio = income > 0 ? iphoneEmi / income : 1;
+  const emiRatio = income > 0 ? itemEmi / income : 1;
   const netSurplus = income - expenses - debtPayments - upcomingHighPriorityTotal;
-  const surplusAfterEmi = netSurplus - iphoneEmi;
+  const surplusAfterEmi = netSurplus - itemEmi;
 
   // Rule 1: Emergency fund >= 3 months
   if (emergencyFundMonths < 3) {
@@ -131,27 +131,33 @@ export function calcIPhoneDecision(params: {
   // Rule 2: DTI <= 30% (stricter 20% if has active debt)
   const dtiThreshold = hasActiveDebt ? 0.2 : 0.3;
   if (dti > dtiThreshold) {
-    reasons.push(`Debt-to-income ratio ${(dti * 100).toFixed(1)}% exceeds ${dtiThreshold * 100}% limit`);
+    reasons.push(
+      `Debt-to-income ratio ${(dti * 100).toFixed(1)}% exceeds ${dtiThreshold * 100}% limit`
+    );
     strictFail++;
   }
 
-  // Rule 3: iPhone EMI <= 10–15% of income
+  // Rule 3: Item EMI <= 10–15% of income
   const emiThreshold = hasActiveDebt ? 0.1 : 0.15;
   if (emiRatio > emiThreshold) {
-    reasons.push(`iPhone EMI is ${(emiRatio * 100).toFixed(1)}% of income (limit ${emiThreshold * 100}%)`);
+    reasons.push(
+      `Item EMI is ${(emiRatio * 100).toFixed(1)}% of income (limit ${emiThreshold * 100}%)`
+    );
     hasActiveDebt ? strictFail++ : failCount++;
   }
 
   // Rule 4: Monthly surplus remains positive after EMI
   if (surplusAfterEmi <= 0) {
-    reasons.push(`Monthly surplus goes negative (${surplusAfterEmi.toFixed(0)}) after iPhone payment`);
+    reasons.push(
+      `Monthly surplus goes negative (${surplusAfterEmi.toFixed(0)}) after purchase payment`
+    );
     strictFail++;
   }
 
   // Rule 5: High-priority commitments covered (already in netSurplus calc)
 
   // Rule 6: Emergency fund doesn't fall below threshold after purchase
-  const balanceAfter = emergencyFundBalance - iphonePrice;
+  const balanceAfter = emergencyFundBalance - itemPrice;
   const monthsAfter = monthlyEssentials > 0 ? balanceAfter / monthlyEssentials : 0;
   if (monthsAfter < 3) {
     reasons.push(`Emergency fund would drop to ${monthsAfter.toFixed(1)} months after purchase`);
@@ -160,7 +166,7 @@ export function calcIPhoneDecision(params: {
 
   const score = Math.max(0, 100 - strictFail * 30 - failCount * 15);
 
-  let decision: IPhoneDecision;
+  let decision: PurchaseDecision;
   if (strictFail === 0 && failCount === 0) {
     decision = 'SAFE_TO_BUY';
   } else if (strictFail >= 2 || (hasActiveDebt && strictFail >= 1 && failCount >= 1)) {
@@ -189,7 +195,14 @@ export function simulateFutureImpact(params: {
   emiMonths: number;
   projectionMonths: number;
 }): { months: number; savings: number; surplus: number }[] {
-  const { currentSavings, monthlySurplus, oneTimePurchase, monthlyEmi, emiMonths, projectionMonths } = params;
+  const {
+    currentSavings,
+    monthlySurplus,
+    oneTimePurchase,
+    monthlyEmi,
+    emiMonths,
+    projectionMonths,
+  } = params;
   const result = [];
 
   let savings = currentSavings - oneTimePurchase;
@@ -197,7 +210,11 @@ export function simulateFutureImpact(params: {
     const emi = m <= emiMonths ? monthlyEmi : 0;
     const surplus = monthlySurplus - emi;
     savings += surplus;
-    result.push({ months: m, savings: Math.round(savings * 100) / 100, surplus: Math.round(surplus * 100) / 100 });
+    result.push({
+      months: m,
+      savings: Math.round(savings * 100) / 100,
+      surplus: Math.round(surplus * 100) / 100,
+    });
   }
   return result;
 }
